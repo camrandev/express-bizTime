@@ -39,7 +39,7 @@ router.get("/:code",
         WHERE code = $1`, [code]);
 
     if (results.rows.length === 0) {
-      throw new BadRequestError();
+      throw new NotFoundError();
     }
 
     const company = results.rows[0];
@@ -98,7 +98,7 @@ router.put("/:code", async function (req, res, next) {
   );
 
   if (!result.rows[0]) {
-    throw new BadRequestError();
+    throw new NotFoundError();
   }
 
   const company = result.rows[0];
@@ -114,10 +114,16 @@ router.put("/:code", async function (req, res, next) {
 router.delete("/:code", async function (req, res, next) {
   const code = req.params.code;
 
-  await db.query(
-    "DELETE FROM companies WHERE code = $1",
+  const result = await db.query(
+    `DELETE FROM companies WHERE code = $1
+      RETURNING code`,
     [code],
   );
+
+  if (!result.rows[0]) {
+    throw new NotFoundError();
+  }
+
   return res.json({ status: "deleted" });
 });
 
