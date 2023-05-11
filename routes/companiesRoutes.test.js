@@ -22,11 +22,15 @@ beforeEach(async function () {
 describe("GET /companies", function () {
   test("Gets companies", async function () {
     const resp = await request(app).get(`/companies`);
-    console.log(resp.body);
     expect(resp.body).toEqual({
       companies: [{ code: testCompany.code, name: testCompany.name }],
     });
   });
+});
+
+//close the db conection after all tests have been run
+afterAll(async () => {
+  db.end()
 });
 
 /** GET /companies/[code]: returns object of company with the associated code
