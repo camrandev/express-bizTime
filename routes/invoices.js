@@ -34,7 +34,6 @@ router.get("/", async function (req, res, next) {
 */
 
 router.get("/:id", async function (req, res, next) {
-  console.log("req.params from invoices id", req.params);
   const id = req.params.id;
 
   const iResult = await db.query(
