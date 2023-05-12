@@ -21,8 +21,6 @@ beforeEach(async function () {
 //create test invoice to use
 beforeEach(async function () {
   await db.query("DELETE FROM invoices");
-  //TODO: use below code to control the primary key values when writing tests
-  //TODO: remember to use single quotes with this
   await db.query("SELECT setval('invoices_id_seq', 1, false)");
 
   let result = await db.query(`
@@ -45,7 +43,7 @@ describe("GET /invoices", function () {
   test("Gets invoices", async function () {
     const resp = await request(app).get(`/invoices`);
     expect(resp.body).toEqual({
-      invoices: [{ id: testInvoice.id, comp_code: testInvoice.comp_code }],
+      invoices: [{ id: 1, comp_code: "apple" }],
     });
   });
 });
@@ -57,19 +55,17 @@ describe("GET /invoices", function () {
  * If invoice isn't found, returns NotFoundError
 */
 describe("GET /invoices/:id", function () {
-  test("Gets companies", async function () {
+  test("Gets invoice", async function () {
     const resp = await request(app).get(`/invoices/${testInvoice.id}`);
     expect(resp.body).toEqual({
-      //TODO: want to hardcode the values here, type check values that you dont know
-      //TODO: important to test entire shape of the data when building apis
       invoice: {
-        id: testInvoice.id,
-        comp_code: testInvoice.comp_code,
-        amt: testInvoice.amt,
-        paid: testInvoice.paid,
+        id: 1,
+        comp_code: "apple",
+        amt: "350.00",
+        paid: false,
         //TODO: if type does not come back correctly, that is also a failed test
-        add_date: new Date(testInvoice.add_date).toISOString(),
-        paid_date: testInvoice.paid_date,
+        add_date: expect.any(String),
+        paid_date: null,
         company: testCompany,
       },
     });
@@ -93,12 +89,20 @@ describe("POST /invoices", function () {
   test("Create new invoice", async function () {
     const resp = await request(app)
       .post(`/invoices`)
-      .send({ comp_code: testCompany.code, amt: 350 });
+      .send({ comp_code: "apple", amt: 350 });
     //TODO: hard code values for testing, always test the complete shape for APIs
     //TODO: shape matters for apis, for unknown values test datatype
     expect(resp.statusCode).toEqual(201);
-    expect(resp.body.comp_code).toEqual(testCompany.comp_code);
-    expect(Number(resp.body.invoice.amt)).toEqual(350);
+    expect(resp.body).toEqual({
+      invoice: {
+        id: 2,
+        comp_code: "apple",
+        amt: "350.00",
+        paid: false,
+        add_date: expect.any(String),
+        paid_date: null,
+      },
+    });
   });
 
   test("400 if empty request body", async function () {
@@ -122,9 +126,6 @@ describe("PUT /invoices/:id", function () {
     const resp = await request(app)
       .put(`/invoices/${testInvoice.id}`)
       .send({ amt: 450 });
-
-    //TODO: test the entire shape, ALSO test the amount, test types if values unknown
-    //TODO: for testing with primary keys, you can prevent
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       invoice: {
@@ -159,5 +160,10 @@ describe("DELETE /invoices/:id", function () {
     const resp = await request(app).delete(`/invoices/${testInvoice.id}`);
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({ status: "deleted" });
+  });
+
+  test("404 if not found", async function () {
+    const resp = await request(app).delete(`/invoice/-1`);
+    expect(resp.statusCode).toEqual(404);
   });
 });
