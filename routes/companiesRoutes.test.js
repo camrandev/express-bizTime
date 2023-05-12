@@ -23,7 +23,7 @@ describe("GET /companies", function () {
   test("Gets companies", async function () {
     const resp = await request(app).get(`/companies`);
     expect(resp.body).toEqual({
-      companies: [{ code: testCompany.code, name: testCompany.name }],
+      companies: [{ code: "apple", name: "Apple Computer" }],
     });
   });
 });
@@ -42,7 +42,13 @@ afterAll(async () => {
 describe("GET /companies/:code", function () {
   test("Gets single company", async function () {
     const resp = await request(app).get(`/companies/${testCompany.code}`);
-    expect(resp.body).toEqual({ company: testCompany });
+    expect(resp.body).toEqual({
+      "company": {
+        "code": "apple",
+        "name": "Apple Computer",
+        "description": "A fast computer"
+      }
+    });
   });
 
   test("404 if not found", async function () {
@@ -98,7 +104,7 @@ describe("PUT /companies/:code", function () {
       .send({ name: "New name", description: "New description" });
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
-      company: { code: testCompany.code, name: "New name", description: "New description" },
+      company: { code: "apple", name: "New name", description: "New description" },
     });
   });
 

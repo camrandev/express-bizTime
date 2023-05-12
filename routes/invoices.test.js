@@ -63,7 +63,6 @@ describe("GET /invoices/:id", function () {
         comp_code: "apple",
         amt: "350.00",
         paid: false,
-        //TODO: if type does not come back correctly, that is also a failed test
         add_date: expect.any(String),
         paid_date: null,
         company: testCompany,
@@ -90,8 +89,6 @@ describe("POST /invoices", function () {
     const resp = await request(app)
       .post(`/invoices`)
       .send({ comp_code: "apple", amt: 350 });
-    //TODO: hard code values for testing, always test the complete shape for APIs
-    //TODO: shape matters for apis, for unknown values test datatype
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       invoice: {
